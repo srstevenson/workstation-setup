@@ -95,6 +95,10 @@ if not host.fact.directory(
         name="Install pyinfra with pipx", commands=["pipx install pyinfra"]
     )
 
+server.shell(
+    name="Upgrade packages installed with pipx", commands=["pipx upgrade-all"]
+)
+
 if not is_headless:
     for path in ["autohide", "dock-fixed", "intellihide"]:
         gsettings.set(
