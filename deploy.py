@@ -84,6 +84,17 @@ if not is_headless:
         sudo=True,
     )
 
+    files.template(
+        name="Install local sudoers configuration",
+        src="templates/sudoers.j2",
+        dest="/etc/sudoers.d/local",
+        mode="440",
+        user="root",
+        group="root",
+        sudo=True,
+        username=host.fact.user,
+    )
+
 snap.remove(name="Remove lxd snap", snap="lxd", sudo=True)
 
 snap.install(name="Install starship snap", snap="starship", sudo=True)
