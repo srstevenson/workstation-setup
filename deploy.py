@@ -96,6 +96,14 @@ if not is_headless:
         username=host.fact.user,
     )
 
+    files.line(
+        name="Enable dual mode Bluetooth",
+        path="/etc/bluetooth/main.conf",
+        line="#ControllerMode = dual",
+        replace="ControllerMode = dual",
+        sudo=True,
+    )
+
 snap.remove(name="Remove lxd snap", snap="lxd", sudo=True)
 
 snap.install(name="Install starship snap", snap="starship", sudo=True)
