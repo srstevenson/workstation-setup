@@ -3,8 +3,7 @@ import os
 from pyinfra import host
 from pyinfra.operations import apt, files, server
 
-import pyinfra_gsettings as gsettings
-import pyinfra_snap as snap
+from operations import gsettings, snap
 
 USE_SUDO_PASSWORD = True
 
