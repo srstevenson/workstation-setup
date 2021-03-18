@@ -46,6 +46,7 @@ apt.packages(
         "fd-find",
         "flake8",
         "git",
+        "ipython3",
         "mypy",
         "neovim",
         "pipx",
