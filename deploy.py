@@ -26,12 +26,15 @@ apt.key(
     sudo=True,
 )
 
-apt.repo(
+tarsnap_repo = apt.repo(
     name="Add Tarsnap package repository",
     src=f"deb http://pkg.tarsnap.com/deb/{release_codename} ./",
     filename="tarsnap",
     sudo=True,
 )
+
+if tarsnap_repo.changed:
+    apt.update(name="Update package indices")
 
 apt.packages(
     name="Install system packages",
