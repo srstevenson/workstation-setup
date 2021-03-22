@@ -51,6 +51,7 @@ apt.packages(
         "neovim",
         "pipx",
         "pylint",
+        "python3",
         "rcm",
         "restic",
         "ripgrep",
@@ -121,6 +122,18 @@ if not host.fact.directory(
 server.shell(
     name="Upgrade packages installed with pipx", commands=["pipx upgrade-all"]
 )
+
+if not host.fact.directory(os.path.join(host.fact.home, ".poetry")):
+    files.download(
+        name="Download Poetry installer",
+        src="https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py",
+        dest="/tmp/get-poetry.py",
+    )
+
+    server.shell(
+        name="Install Poetry",
+        commands=["/usr/bin/python3 /tmp/get-poetry.py --no-modify-path"],
+    )
 
 if not is_headless:
     for path in ["autohide", "dock-fixed", "intellihide"]:
