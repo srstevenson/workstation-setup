@@ -135,6 +135,8 @@ if not host.fact.directory(os.path.join(host.fact.home, ".poetry")):
         commands=["/usr/bin/python3 /tmp/get-poetry.py --no-modify-path"],
     )
 
+server.shell(name="Upgrade Poetry", commands=["poetry self update"])
+
 if not is_headless:
     for path in ["autohide", "dock-fixed", "intellihide"]:
         gsettings.set(
