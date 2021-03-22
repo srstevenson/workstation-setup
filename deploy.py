@@ -63,7 +63,7 @@ apt.packages(
     sudo=True,
 )
 
-if not host.fact.file("/usr/bin/fd"):
+if not host.fact.link("/usr/bin/fd"):
     server.shell(
         name="Install fd under its correct name",
         commands=[
