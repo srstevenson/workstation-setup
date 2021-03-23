@@ -2,16 +2,13 @@ from pyinfra import api
 
 
 @api.operation
-def install(snap, state=None, host=None):
-    if host.fact.directory(f"/snap/{snap}"):
-        host.noop(f"{snap} snap is already installed")
-    else:
-        yield f"snap install {snap}"
+def package(package, present=True, state=None, host=None):
+    is_present = host.fact.directory(f"/snap/{package}")
 
-
-@api.operation
-def remove(snap, state=None, host=None):
-    if not host.fact.directory(f"/snap/{snap}"):
-        host.noop(f"{snap} snap is not installed")
+    if present and is_present:
+        host.noop(f"{package} snap is installed")
+    elif not present and not is_present:
+        host.noop(f"{package} snap is not installed")
     else:
-        yield f"snap remove {snap}"
+        verb = "install" if present else "remove"
+        yield f"snap {verb} {package}"

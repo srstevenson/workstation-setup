@@ -108,9 +108,9 @@ if not is_headless:
         sudo=True,
     )
 
-snap.remove(name="Remove lxd snap", snap="lxd", sudo=True)
+snap.package(name="Remove lxd snap", package="lxd", present=False, sudo=True)
 
-snap.install(name="Install starship snap", snap="starship", sudo=True)
+snap.package(name="Install starship snap", package="starship", sudo=True)
 
 if not host.fact.directory(
     os.path.join(host.fact.home, ".local/pipx/venvs/pyinfra")
