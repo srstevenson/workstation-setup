@@ -49,6 +49,7 @@ apt.packages(
         "ipython3",
         "mypy",
         "neovim",
+        "npm",
         "pipx",
         "pylint",
         "python3",
