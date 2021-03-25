@@ -109,6 +109,12 @@ if not is_headless:
         sudo=True,
     )
 
+    files.sync(
+        name="Install JetBrains Mono font",
+        src="files/jetbrains-mono",
+        dest=os.path.join(host.fact.home, ".local/share/fonts/jetbrains-mono"),
+    )
+
 snap.package(name="Remove lxd snap", package="lxd", present=False, sudo=True)
 
 snap.package(name="Install starship snap", package="starship", sudo=True)
