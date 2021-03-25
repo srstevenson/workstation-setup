@@ -1,3 +1,4 @@
+import functools
 import os
 
 from pyinfra import host
@@ -6,6 +7,10 @@ from pyinfra.operations import apt, files, server
 from operations import gsettings, snap
 
 USE_SUDO_PASSWORD = True
+
+
+home = functools.partial(os.path.join, host.fact.home)
+
 
 is_headless = not host.fact.file("/usr/bin/Xwayland")
 
@@ -112,13 +117,11 @@ if not is_headless:
     files.sync(
         name="Install JetBrains Mono font",
         src="files/jetbrains-mono",
-        dest=os.path.join(host.fact.home, ".local/share/fonts/jetbrains-mono"),
+        dest=home(".local/share/fonts/jetbrains-mono"),
     )
 
     # TODO(srstevenson): Read from dconf instead of using file.
-    terminal_theme_installed = os.path.join(
-        host.fact.home, ".local/share/.terminal_theme_installed"
-    )
+    terminal_theme_installed = home(".local/share/.terminal_theme_installed")
     if not host.fact.file(terminal_theme_installed):
         for theme in ["base16-tomorrow", "base16-tomorrow-night"]:
             server.script(
@@ -131,9 +134,7 @@ snap.package(name="Remove lxd snap", package="lxd", present=False, sudo=True)
 
 snap.package(name="Install starship snap", package="starship", sudo=True)
 
-if not host.fact.directory(
-    os.path.join(host.fact.home, ".local/pipx/venvs/pyinfra")
-):
+if not host.fact.directory(home(".local/pipx/venvs/pyinfra")):
     server.shell(
         name="Install pyinfra with pipx", commands=["pipx install pyinfra"]
     )
@@ -142,7 +143,7 @@ server.shell(
     name="Upgrade packages installed with pipx", commands=["pipx upgrade-all"]
 )
 
-if not host.fact.directory(os.path.join(host.fact.home, ".poetry")):
+if not host.fact.directory(home(".poetry")):
     files.download(
         name="Download Poetry installer",
         src="https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py",
