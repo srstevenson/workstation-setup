@@ -115,6 +115,18 @@ if not is_headless:
         dest=os.path.join(host.fact.home, ".local/share/fonts/jetbrains-mono"),
     )
 
+    # TODO(srstevenson): Read from dconf instead of using file.
+    terminal_theme_installed = os.path.join(
+        host.fact.home, ".local/share/.terminal_theme_installed"
+    )
+    if not host.fact.file(terminal_theme_installed):
+        for theme in ["base16-tomorrow", "base16-tomorrow-night"]:
+            server.script(
+                name=f"Install {theme} terminal theme",
+                src=f"files/base16-gnome-terminal/{theme}.sh",
+            )
+        files.file(terminal_theme_installed)
+
 snap.package(name="Remove lxd snap", package="lxd", present=False, sudo=True)
 
 snap.package(name="Install starship snap", package="starship", sudo=True)
