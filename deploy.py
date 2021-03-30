@@ -54,6 +54,7 @@ apt.packages(
         "flake8",
         "git",
         "ipython3",
+        "isort",
         "mypy",
         "neovim",
         "npm",
