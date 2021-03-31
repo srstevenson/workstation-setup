@@ -53,6 +53,7 @@ apt.packages(
         "fd-find",
         "flake8",
         "git",
+        "htop",
         "ipython3",
         "isort",
         "mypy",
