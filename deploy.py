@@ -95,7 +95,14 @@ if not is_headless:
         update=True,
         cache_time=3600,
         upgrade=True,
-        packages=["anki", "calibre", "ddcutil", "gnome-tweaks", "keepassxc"],
+        packages=[
+            "anki",
+            "calibre",
+            "ddcutil",
+            "gnome-tweaks",
+            "keepassxc",
+            "kitty",
+        ],
         sudo=True,
     )
 
