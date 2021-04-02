@@ -106,6 +106,14 @@ if not is_headless:
         sudo=True,
     )
 
+    server.shell(
+        name="Set default terminal emulator to kitty",
+        commands=[
+            "update-alternatives --set x-terminal-emulator /usr/bin/kitty"
+        ],
+        sudo=True,
+    )
+
     files.template(
         name="Install local sudoers configuration",
         src="templates/sudoers.j2",
