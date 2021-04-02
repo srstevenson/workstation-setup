@@ -11,4 +11,5 @@ if [[ ! -d "$HOME/.local/pipx/venvs/pyinfra" ]]; then
     pipx install pyinfra
 fi
 
-"$HOME/.local/bin/pyinfra" @local deploy.py
+export PATH="$HOME/.local/bin:$HOME/.poetry/bin:$PATH"
+pyinfra @local deploy.py
