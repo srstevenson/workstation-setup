@@ -14,6 +14,15 @@ home = functools.partial(os.path.join, host.fact.home)
 
 is_headless = not host.fact.file("/usr/bin/Xwayland")
 
+if is_headless:
+    server.shell(
+        name="Allow incoming SSH traffic",
+        commands=["ufw allow ssh"],
+        sudo=True,
+    )
+
+server.shell(name="Enable firewall", commands=["ufw enable"], sudo=True)
+
 if host.fact.file("/etc/default/motd-news"):
     files.line(
         name="Disable dynamic MOTD news service",
