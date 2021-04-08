@@ -115,6 +115,14 @@ if not is_headless:
         sudo=True,
     )
 
+    files.line(
+        name="Set kitty icon",
+        path="/usr/share/applications/kitty.desktop",
+        line="Icon=kitty",
+        replace="Icon=terminal",
+        sudo=True,
+    )
+
     server.shell(
         name="Set default terminal emulator to kitty",
         commands=[
