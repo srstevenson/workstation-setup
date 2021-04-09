@@ -111,6 +111,7 @@ if not is_headless:
             "gnome-tweaks",
             "keepassxc",
             "kitty",
+            "wl-clipboard",
         ],
         sudo=True,
     )
