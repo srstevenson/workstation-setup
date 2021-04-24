@@ -77,6 +77,7 @@ apt.packages(
         "shellcheck",
         "tarsnap",
         "tmux",
+        "tree",
         "zsh",
     ],
     sudo=True,
