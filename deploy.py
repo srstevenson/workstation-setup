@@ -1,6 +1,7 @@
 import functools
 import os
 
+import requests
 from pyinfra import host
 from pyinfra.operations import apt, files, server
 
@@ -82,6 +83,22 @@ apt.packages(
     ],
     sudo=True,
 )
+
+
+def jump_deb_url() -> str:
+    response = requests.get(
+        "https://api.github.com/repos/gsamokovarov/jump/releases/latest",
+        headers={"Accept": "application/vnd.github.v3+json"},
+    )
+    response.raise_for_status()
+    body = response.json()
+    for asset in body["assets"]:
+        if asset["name"].endswith("amd64.deb"):
+            return asset["browser_download_url"]
+
+
+apt.deb(name="Install jump from GitHub", src=jump_deb_url(), sudo=True)
+
 
 if not host.fact.link("/usr/bin/fd"):
     server.shell(
