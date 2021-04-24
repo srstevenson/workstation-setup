@@ -185,6 +185,13 @@ if not host.fact.directory(home(".poetry")):
 server.shell(name="Upgrade Poetry", commands=["poetry self update"])
 
 if not is_headless:
+    gsettings.set(
+        name="Enable natural scrolling for mouse",
+        schema="org.gnome.desktop.peripherals.mouse",
+        path="natural-scroll",
+        key="true",
+    )
+
     for path in ["autohide", "dock-fixed", "intellihide"]:
         gsettings.set(
             name="Permanently hide dock",
