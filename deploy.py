@@ -32,13 +32,15 @@ if host.fact.file("/etc/default/motd-news"):
         sudo=True,
     )
 
-release_codename = host.fact.lsb_release["codename"]
-
 apt.key(
     name="Add Tarsnap package signing key",
     src="https://pkg.tarsnap.com/tarsnap-deb-packaging-key.asc",
     sudo=True,
 )
+
+# TODO(srstevenson): Restore when Tarsnap repository is available for Hirsute.
+# release_codename = host.fact.lsb_release["codename"]
+release_codename = "groovy"
 
 tarsnap_repo = apt.repo(
     name="Add Tarsnap package repository",
