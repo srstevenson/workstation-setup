@@ -49,9 +49,7 @@ tarsnap_repo = apt.repo(
     sudo=True,
 )
 
-git_ppa = apt.ppa(name="Add Git PPA", src="ppa:git-core/ppa", sudo=True)
-
-if tarsnap_repo.changed or git_ppa.changed:
+if tarsnap_repo.changed:
     apt.update(name="Update package indices", sudo=True)
 
 apt.packages(
