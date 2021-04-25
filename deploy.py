@@ -3,7 +3,7 @@ import os
 
 import requests
 from pyinfra import host
-from pyinfra.operations import apt, files, server
+from pyinfra.operations import apt, files, git, server
 
 from operations import gsettings, snap
 
@@ -224,3 +224,16 @@ if not is_headless:
             path=path,
             key="false",
         )
+
+git.repo(
+    name="Clone dotfiles",
+    src="https://github.com/srstevenson/dotfiles.git",
+    dest=home("dotfiles"),
+    branch="main",
+    pull=False,
+)
+
+server.shell(
+    name="Install dotfiles",
+    commands=[f"env RCRC={host.fact.home}/dotfiles/tag-rcm/rcrc rcup"],
+)
