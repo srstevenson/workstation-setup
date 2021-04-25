@@ -204,6 +204,13 @@ server.shell(name="Upgrade Poetry", commands=["poetry self update"])
 
 if not is_headless:
     gsettings.set(
+        name="Map CapsLock to Ctrl",
+        schema="org.gnome.desktop.input-sources",
+        path="xkb-options",
+        key="['ctrl:nocaps']",
+    )
+
+    gsettings.set(
         name="Enable natural scrolling for mouse",
         schema="org.gnome.desktop.peripherals.mouse",
         path="natural-scroll",
