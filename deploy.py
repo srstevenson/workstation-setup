@@ -3,44 +3,52 @@ import os
 
 import requests
 from pyinfra import host
+from pyinfra.facts.files import Directory, File, Link
+from pyinfra.facts.server import Home, User
 from pyinfra.operations import apt, files, git, server
 
 from operations import gsettings, snap
 
-USE_SUDO_PASSWORD = True
+username = host.get_fact(User)
+home = functools.partial(os.path.join, host.get_fact(Home))
 
 
-home = functools.partial(os.path.join, host.fact.home)
-
-
-is_headless = not host.fact.file("/usr/bin/Xwayland")
+is_headless = not host.get_fact(File, path="/usr/bin/Xwayland")
 
 if is_headless:
     server.shell(
         name="Allow incoming SSH traffic",
         commands=["ufw allow ssh"],
         sudo=True,
+        use_sudo_password=True,
     )
 
-server.shell(name="Enable firewall", commands=["ufw enable"], sudo=True)
+server.shell(
+    name="Enable firewall",
+    commands=["ufw enable"],
+    sudo=True,
+    use_sudo_password=True,
+)
 
-if host.fact.file("/etc/default/motd-news"):
+if host.get_fact(File, path="/etc/default/motd-news"):
     files.line(
         name="Disable dynamic MOTD news service",
         path="/etc/default/motd-news",
         line="ENABLED=1",
         replace="ENABLED=0",
         sudo=True,
+        use_sudo_password=True,
     )
 
 apt.key(
     name="Add Tarsnap package signing key",
     src="https://pkg.tarsnap.com/tarsnap-deb-packaging-key.asc",
     sudo=True,
+    use_sudo_password=True,
 )
 
 # TODO(srstevenson): Restore when Tarsnap repository is available for Hirsute.
-# release_codename = host.fact.lsb_release["codename"]
+# release_codename = host.get_fact(LsbRelease)["codename"]
 release_codename = "groovy"
 
 tarsnap_repo = apt.repo(
@@ -48,10 +56,13 @@ tarsnap_repo = apt.repo(
     src=f"deb http://pkg.tarsnap.com/deb/{release_codename} ./",
     filename="tarsnap",
     sudo=True,
+    use_sudo_password=True,
 )
 
 if tarsnap_repo.changed:
-    apt.update(name="Update package indices", sudo=True)
+    apt.update(
+        name="Update package indices", sudo=True, use_sudo_password=True
+    )
 
 apt.packages(
     name="Install system packages",
@@ -82,6 +93,7 @@ apt.packages(
         "zsh",
     ],
     sudo=True,
+    use_sudo_password=True,
 )
 
 
@@ -97,23 +109,30 @@ def jump_deb_url() -> str:
             return asset["browser_download_url"]
 
 
-apt.deb(name="Install jump from GitHub", src=jump_deb_url(), sudo=True)
+apt.deb(
+    name="Install jump from GitHub",
+    src=jump_deb_url(),
+    sudo=True,
+    use_sudo_password=True,
+)
 
 
-if not host.fact.link("/usr/bin/fd"):
+if not host.get_fact(Link, path="/usr/bin/fd"):
     server.shell(
         name="Install fd under its correct name",
         commands=[
             "dpkg-divert --local --divert /usr/bin/fd --rename --add /usr/bin/fdfind"
         ],
         sudo=True,
+        use_sudo_password=True,
     )
 
 server.user(
     name="Set shell to zsh",
-    user=host.fact.user,
+    user=username,
     shell="/usr/bin/zsh",
     sudo=True,
+    use_sudo_password=True,
 )
 
 if not is_headless:
@@ -132,6 +151,7 @@ if not is_headless:
             "wl-clipboard",
         ],
         sudo=True,
+        use_sudo_password=True,
     )
 
     files.line(
@@ -140,6 +160,7 @@ if not is_headless:
         line="Icon=kitty",
         replace="Icon=terminal",
         sudo=True,
+        use_sudo_password=True,
     )
 
     server.shell(
@@ -148,6 +169,7 @@ if not is_headless:
             "update-alternatives --set x-terminal-emulator /usr/bin/kitty"
         ],
         sudo=True,
+        use_sudo_password=True,
     )
 
     files.template(
@@ -158,7 +180,8 @@ if not is_headless:
         user="root",
         group="root",
         sudo=True,
-        username=host.fact.user,
+        use_sudo_password=True,
+        username=username,
     )
 
     files.line(
@@ -167,6 +190,7 @@ if not is_headless:
         line="#ControllerMode = dual",
         replace="ControllerMode = dual",
         sudo=True,
+        use_sudo_password=True,
     )
 
     files.sync(
@@ -175,11 +199,22 @@ if not is_headless:
         dest=home(".local/share/fonts/jetbrains-mono"),
     )
 
-snap.package(name="Remove lxd snap", package="lxd", present=False, sudo=True)
+snap.package(
+    name="Remove lxd snap",
+    package="lxd",
+    present=False,
+    sudo=True,
+    use_sudo_password=True,
+)
 
-snap.package(name="Install starship snap", package="starship", sudo=True)
+snap.package(
+    name="Install starship snap",
+    package="starship",
+    sudo=True,
+    use_sudo_password=True,
+)
 
-if not host.fact.directory(home(".local/pipx/venvs/pyinfra")):
+if not host.get_fact(Directory, path=home(".local/pipx/venvs/pyinfra")):
     server.shell(
         name="Install pyinfra with pipx", commands=["pipx install pyinfra"]
     )
@@ -188,7 +223,7 @@ server.shell(
     name="Upgrade packages installed with pipx", commands=["pipx upgrade-all"]
 )
 
-if not host.fact.directory(home(".poetry")):
+if not host.get_fact(Directory, path=home(".poetry")):
     files.download(
         name="Download Poetry installer",
         src="https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py",
@@ -235,5 +270,5 @@ git.repo(
 
 server.shell(
     name="Install dotfiles",
-    commands=[f"env RCRC={host.fact.home}/dotfiles/tag-rcm/rcrc rcup"],
+    commands=[f"env RCRC={host.get_fact(Home)}/dotfiles/tag-rcm/rcrc rcup"],
 )
