@@ -53,7 +53,7 @@ release_codename = "groovy"
 
 tarsnap_repo = apt.repo(
     name="Add Tarsnap package repository",
-    src=f"deb http://pkg.tarsnap.com/deb/{release_codename} ./",
+    src=f"deb https://pkg.tarsnap.com/deb/{release_codename} ./",
     filename="tarsnap",
     sudo=True,
     use_sudo_password=True,
