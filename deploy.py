@@ -9,6 +9,7 @@ from pyinfra.operations import apt, files, git, server
 
 from operations import gsettings, snap
 
+with_sudo = {"sudo": True, "use_sudo_password": True}
 username = host.get_fact(User)
 home = functools.partial(os.path.join, host.get_fact(Home))
 
@@ -19,16 +20,10 @@ if is_headless:
     server.shell(
         name="Allow incoming SSH traffic",
         commands=["ufw allow ssh"],
-        sudo=True,
-        use_sudo_password=True,
+        **with_sudo,
     )
 
-server.shell(
-    name="Enable firewall",
-    commands=["ufw enable"],
-    sudo=True,
-    use_sudo_password=True,
-)
+server.shell(name="Enable firewall", commands=["ufw enable"], **with_sudo)
 
 if host.get_fact(File, path="/etc/default/motd-news"):
     files.line(
@@ -36,15 +31,13 @@ if host.get_fact(File, path="/etc/default/motd-news"):
         path="/etc/default/motd-news",
         line="ENABLED=1",
         replace="ENABLED=0",
-        sudo=True,
-        use_sudo_password=True,
+        **with_sudo,
     )
 
 apt.key(
     name="Add Tarsnap package signing key",
     src="https://pkg.tarsnap.com/tarsnap-deb-packaging-key.asc",
-    sudo=True,
-    use_sudo_password=True,
+    **with_sudo,
 )
 
 # TODO(srstevenson): Restore when Tarsnap repository is available for Hirsute.
@@ -55,14 +48,11 @@ tarsnap_repo = apt.repo(
     name="Add Tarsnap package repository",
     src=f"deb https://pkg.tarsnap.com/deb/{release_codename} ./",
     filename="tarsnap",
-    sudo=True,
-    use_sudo_password=True,
+    **with_sudo,
 )
 
 if tarsnap_repo.changed:
-    apt.update(
-        name="Update package indices", sudo=True, use_sudo_password=True
-    )
+    apt.update(name="Update package indices", **with_sudo)
 
 apt.packages(
     name="Install system packages",
@@ -92,8 +82,7 @@ apt.packages(
         "tree",
         "zsh",
     ],
-    sudo=True,
-    use_sudo_password=True,
+    **with_sudo,
 )
 
 
@@ -109,12 +98,7 @@ def jump_deb_url() -> str:
             return asset["browser_download_url"]
 
 
-apt.deb(
-    name="Install jump from GitHub",
-    src=jump_deb_url(),
-    sudo=True,
-    use_sudo_password=True,
-)
+apt.deb(name="Install jump from GitHub", src=jump_deb_url(), **with_sudo)
 
 
 if not host.get_fact(Link, path="/usr/bin/fd"):
@@ -123,16 +107,11 @@ if not host.get_fact(Link, path="/usr/bin/fd"):
         commands=[
             "dpkg-divert --local --divert /usr/bin/fd --rename --add /usr/bin/fdfind"
         ],
-        sudo=True,
-        use_sudo_password=True,
+        **with_sudo,
     )
 
 server.user(
-    name="Set shell to zsh",
-    user=username,
-    shell="/usr/bin/zsh",
-    sudo=True,
-    use_sudo_password=True,
+    name="Set shell to zsh", user=username, shell="/usr/bin/zsh", **with_sudo
 )
 
 if not is_headless:
@@ -150,8 +129,7 @@ if not is_headless:
             "kitty",
             "wl-clipboard",
         ],
-        sudo=True,
-        use_sudo_password=True,
+        **with_sudo,
     )
 
     files.line(
@@ -159,8 +137,7 @@ if not is_headless:
         path="/usr/share/applications/kitty.desktop",
         line="Icon=kitty",
         replace="Icon=terminal",
-        sudo=True,
-        use_sudo_password=True,
+        **with_sudo,
     )
 
     server.shell(
@@ -168,8 +145,7 @@ if not is_headless:
         commands=[
             "update-alternatives --set x-terminal-emulator /usr/bin/kitty"
         ],
-        sudo=True,
-        use_sudo_password=True,
+        **with_sudo,
     )
 
     files.template(
@@ -179,9 +155,8 @@ if not is_headless:
         mode="440",
         user="root",
         group="root",
-        sudo=True,
-        use_sudo_password=True,
         username=username,
+        **with_sudo,
     )
 
     files.line(
@@ -189,8 +164,7 @@ if not is_headless:
         path="/etc/bluetooth/main.conf",
         line="#ControllerMode = dual",
         replace="ControllerMode = dual",
-        sudo=True,
-        use_sudo_password=True,
+        **with_sudo,
     )
 
     files.sync(
@@ -199,20 +173,9 @@ if not is_headless:
         dest=home(".local/share/fonts/jetbrains-mono"),
     )
 
-snap.package(
-    name="Remove lxd snap",
-    package="lxd",
-    present=False,
-    sudo=True,
-    use_sudo_password=True,
-)
+snap.package(name="Remove lxd snap", package="lxd", present=False, **with_sudo)
 
-snap.package(
-    name="Install starship snap",
-    package="starship",
-    sudo=True,
-    use_sudo_password=True,
-)
+snap.package(name="Install starship snap", package="starship", **with_sudo)
 
 if not host.get_fact(Directory, path=home(".local/pipx/venvs/pyinfra")):
     server.shell(
