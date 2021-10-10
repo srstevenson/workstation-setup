@@ -32,9 +32,7 @@ apt.key(
     **with_sudo,
 )
 
-# TODO(srstevenson): Restore when Tarsnap repository is available for Hirsute.
-# release_codename = host.get_fact(LsbRelease)["codename"]
-release_codename = "groovy"
+release_codename = host.get_fact(LsbRelease)["codename"]
 
 tarsnap_repo = apt.repo(
     name="Add Tarsnap package repository",
