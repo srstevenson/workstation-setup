@@ -1,5 +1,6 @@
 import functools
 import os
+from typing import Optional
 
 import requests
 from pyinfra import host
@@ -86,7 +87,7 @@ apt.packages(
 )
 
 
-def jump_deb_url() -> str:
+def jump_deb_url() -> Optional[str]:
     response = requests.get(
         "https://api.github.com/repos/gsamokovarov/jump/releases/latest",
         headers={"Accept": "application/vnd.github.v3+json"},
