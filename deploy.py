@@ -15,15 +15,6 @@ username = host.get_fact(User)
 home = functools.partial(os.path.join, host.get_fact(Home))
 
 
-is_headless = not host.get_fact(File, path="/usr/bin/Xwayland")
-
-if is_headless:
-    server.shell(
-        name="Allow incoming SSH traffic",
-        commands=["ufw allow ssh"],
-        **with_sudo,
-    )
-
 server.shell(name="Enable firewall", commands=["ufw enable"], **with_sudo)
 
 if host.get_fact(File, path="/etc/default/motd-news"):
@@ -115,66 +106,61 @@ server.user(
     name="Set shell to zsh", user=username, shell="/usr/bin/zsh", **with_sudo
 )
 
-if not is_headless:
-    apt.packages(
-        name="Install system packages for workstations",
-        update=True,
-        cache_time=3600,
-        upgrade=True,
-        packages=[
-            "anki",
-            "calibre",
-            "ddcutil",
-            "gnome-tweaks",
-            "keepassxc",
-            "kitty",
-            "wl-clipboard",
-        ],
-        **with_sudo,
-    )
+apt.packages(
+    name="Install system packages for workstations",
+    update=True,
+    cache_time=3600,
+    upgrade=True,
+    packages=[
+        "anki",
+        "calibre",
+        "ddcutil",
+        "gnome-tweaks",
+        "keepassxc",
+        "kitty",
+        "wl-clipboard",
+    ],
+    **with_sudo,
+)
 
-    files.line(
-        name="Set kitty icon",
-        path="/usr/share/applications/kitty.desktop",
-        line="Icon=kitty",
-        replace="Icon=terminal",
-        **with_sudo,
-    )
+files.line(
+    name="Set kitty icon",
+    path="/usr/share/applications/kitty.desktop",
+    line="Icon=kitty",
+    replace="Icon=terminal",
+    **with_sudo,
+)
 
-    server.shell(
-        name="Set default terminal emulator to kitty",
-        commands=[
-            "update-alternatives --set x-terminal-emulator /usr/bin/kitty"
-        ],
-        **with_sudo,
-    )
+server.shell(
+    name="Set default terminal emulator to kitty",
+    commands=["update-alternatives --set x-terminal-emulator /usr/bin/kitty"],
+    **with_sudo,
+)
 
-    files.template(
-        name="Install local sudoers configuration",
-        src="templates/sudoers.j2",
-        dest="/etc/sudoers.d/local",
-        mode="440",
-        user="root",
-        group="root",
-        username=username,
-        **with_sudo,
-    )
+files.template(
+    name="Install local sudoers configuration",
+    src="templates/sudoers.j2",
+    dest="/etc/sudoers.d/local",
+    mode="440",
+    user="root",
+    group="root",
+    username=username,
+    **with_sudo,
+)
 
-    files.line(
-        name="Enable dual mode Bluetooth",
-        path="/etc/bluetooth/main.conf",
-        line="#ControllerMode = dual",
-        replace="ControllerMode = dual",
-        **with_sudo,
-    )
+files.line(
+    name="Enable dual mode Bluetooth",
+    path="/etc/bluetooth/main.conf",
+    line="#ControllerMode = dual",
+    replace="ControllerMode = dual",
+    **with_sudo,
+)
 
-    files.sync(
-        name="Install JetBrains Mono font",
-        src="files/jetbrains-mono",
-        dest=home(".local/share/fonts/jetbrains-mono"),
-    )
-
-snap.package(name="Remove lxd snap", package="lxd", present=False, **with_sudo)
+files.sync(
+    name="Install JetBrains Mono font",
+    src="files/jetbrains-mono",
+    dest=home(".local/share/fonts/jetbrains-mono"),
+)
 
 snap.package(name="Install starship snap", package="starship", **with_sudo)
 
@@ -201,28 +187,27 @@ if not host.get_fact(Directory, path=home(".poetry")):
 
 server.shell(name="Upgrade Poetry", commands=["poetry self update"])
 
-if not is_headless:
-    gsettings.set(
-        name="Map CapsLock to Ctrl",
-        schema="org.gnome.desktop.input-sources",
-        path="xkb-options",
-        key="['ctrl:nocaps']",
-    )
+gsettings.set(
+    name="Map CapsLock to Ctrl",
+    schema="org.gnome.desktop.input-sources",
+    path="xkb-options",
+    key="['ctrl:nocaps']",
+)
 
-    gsettings.set(
-        name="Enable natural scrolling for mouse",
-        schema="org.gnome.desktop.peripherals.mouse",
-        path="natural-scroll",
-        key="true",
-    )
+gsettings.set(
+    name="Enable natural scrolling for mouse",
+    schema="org.gnome.desktop.peripherals.mouse",
+    path="natural-scroll",
+    key="true",
+)
 
-    for path in ["autohide", "dock-fixed", "intellihide"]:
-        gsettings.set(
-            name="Permanently hide dock",
-            schema="org.gnome.shell.extensions.dash-to-dock",
-            path=path,
-            key="false",
-        )
+for path in ["autohide", "dock-fixed", "intellihide"]:
+    gsettings.set(
+        name="Permanently hide dock",
+        schema="org.gnome.shell.extensions.dash-to-dock",
+        path=path,
+        key="false",
+    )
 
 git.repo(
     name="Clone dotfiles",
